@@ -1,21 +1,40 @@
-from unicodedata import name
 import sqlalchemy as db
+import json
+from sqlalchemy import create_engine
 
 class Campeonato:
-    def __init__(self, nome, premiacao, etapa=None):
-        self.database = db.create_engine(url='127.0.0.1:3306')
-        self.database = self.database.connect()
-        self.table = db.Table('campeonato')
+    def __init__(self, nome = None, premiacao = None, etapa = None):
+        self.database = create_engine("mysql+pymysql://root:aluno@localhost/webII")
         self.nome = nome
         self.premiacao = premiacao
         self.etapa = etapa
+    
+    def select_by_id(self, id):
 
-    def inserir_campeonato(self):
-        try:
-            insert = db.insert(self.table).values(nome=self.nome, premiacao=self.premiacao, etapa=self.etapa)
-            self.database.execute(insert)
-        except:
-            return False
+        with self.database.connect() as con:
 
-    def seleciona_um_campeonato(self, id):
-        pass
+            result = con.execute(f'SELECT * FROM campeonato WHERE campeonato_id = {id}')
+
+            result = [{"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
+        
+        return result
+
+    def select_all(self):
+
+        with self.database.connect() as con:
+
+            result = con.execute(f'SELECT * FROM campeonato')
+
+            result = [{"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
+
+        return result
+
+    def add_campeonato(self):
+        
+        with self.database.connect() as con:
+
+            result = con.execute(f'INSERT INTO campeonato (nome, premiacao, etapa) VALUES("{self.nome}", "{self.premiacao}", "{self.etapa}")')
+
+            print(result)
+
+        return result
