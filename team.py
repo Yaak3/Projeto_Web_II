@@ -2,7 +2,7 @@ import sqlalchemy as db
 import json
 from sqlalchemy import create_engine
 
-class Time:
+class Team():
     def __init__(self, nome = None, ano = None):
         self.database = create_engine("mysql+pymysql://root:aluno@localhost/webII")
         self.nome = nome

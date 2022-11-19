@@ -1,62 +1,69 @@
 import sqlalchemy as db
 import json
+from database import Database
 from sqlalchemy import create_engine
 
-class Campeonato:
+class Campeonato():
     def __init__(self, nome = None, premiacao = None, etapa = None):
-        self.database = create_engine("mysql+pymysql://root:aluno@localhost/webII")
+        self.database = Database()
         self.nome = nome
         self.premiacao = premiacao
         self.etapa = etapa
     
     def select_by_id(self, id):
 
-        with self.database.connect() as con:
+        result = self.database.execute_query(f'SELECT * FROM campeonato WHERE campeonato_id = {id};')
 
-            result = con.execute(f'SELECT * FROM campeonato WHERE campeonato_id = {id}')
+        if(len(result) == 0):
+            return {}
+        elif(len(result) == 1):
+            return {"id": result[0][0],"nome": result[0][1], "premiacao": result[0][2], "etapa": result[0][3]}
+        else:
+            return result
 
-            result = {"id": result[0][0],"nome": result[0][1], "premiacao": result[0][2], "etapa": result[0][3]}
-        
-        return result
-
+#ver como ajustar esse aqui, vai dar problema
     def select_all(self):
 
-        with self.database.connect() as con:
+        result = self.database.execute_query(f'SELECT * FROM campeonato;')
 
-            result = con.execute(f'SELECT * FROM campeonato')
+        if(len(result) == 1):
+            return [{"id": row[0],"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
+        else:
+            return result
 
-            result = [{"id": row[0],"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
-
-        return result
-
+#ver como ajustar esse aqui, vai dar problema
     def select_by_name(self):
 
-        with self.database.connect() as con:
+        result = self.database.execute_query(f'SELECT * FROM campeonato WHERE nome LIKE "{self.nome}";')
 
-            result = con.execute(f'SELECT * FROM campeonato WHERE "nome" LIKE %{self.nome}%')
-
-            result = [{"id": row[0],"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
-
-        return result
+        if(len(result) == 1):
+            return [{"id": row[0],"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
+        else:
+            return result
 
     def select_top_premiacao(self):
 
-        with self.database.connect() as con:
+        result = self.database.execute_query(f'SELECT * FROM campeonato ORDER BY premiacao desc limit 1;')
 
-            result = con.execute(f'SELECT * FROM campeonato ORDER BY "premiacao" DESC')
+        if(len(result) == 0):
+            return {}
+        elif(len(result) == 1):
+            return {"id": result[0][0],"nome": result[0][1], "premiacao": result[0][2], "etapa": result[0][3]}
+        else:
+            return result
 
-            result = {"id": result[0][0],"nome": result[0][1], "premiacao": result[0][2], "etapa": result[0][3]}
 
         return result
 
 
+##Ajustar daqui para baixo
     def add_campeonato(self):
         
         with self.database.connect() as con:
 
-            result = con.execute(f'INSERT INTO campeonato (nome, premiacao, etapa) VALUES("{self.nome}", "{self.premiacao}", "{self.etapa}")')
+            con.execute(f'INSERT INTO campeonato (nome, premiacao, etapa) VALUES("{self.nome}", "{self.premiacao}", "{self.etapa}")')
 
-        return result
+        return "Ok"
 
     def delete_campeoato(self, id):
 

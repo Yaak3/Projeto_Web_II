@@ -1,75 +1,38 @@
 from flask import Flask
 from flask import request
+from team import Team
 from campeonato import Campeonato
-from time import Time
 import json
 
 app = Flask(__name__)
 
-#Selects
-@app.route("/campeonato/<id>", methods=["GET"])
+@app.route("/campeonato/<int:id>", methods=["GET"])
 def select_id(id):
 
-    try:
-        id = int(id)
-        campeonato = Campeonato()
-        return campeonato.select_by_id(id), 200
-    except:
-        return "Necessário informar um tipo inteiro como parâmetro", 400
+    campeonato = Campeonato()
+
+    return campeonato.select_by_id(id)
     
 @app.route("/campeonato", methods=["GET"])
 def select_all():
 
     campeonato = Campeonato()
 
-    return campeonato.select_all(), 200
+    return campeonato.select_all()
 
 
-@app.route("/campeonato/select_by_name/<nome>")
-def select_by_name(nome):
+@app.route("/campeonato/select_by_name/<string:nome_campeonato>", methods=["GET"])
+def select_by_name(nome_campeonato):
 
-    campeonato = Campeonato(nome=nome)
+    campeonato = Campeonato(nome=nome_campeonato)
 
     return campeonato.select_by_name(), 200
 
-@app.route("/campeonato/top_premiacao/")
-def select_by_name():
+@app.route("/campeonato/select_top_premiacao")
+def select_top_premiacao():
     campeonato = Campeonato()
 
     return campeonato.select_top_premiacao(), 200
-
-
-@app.route("/time/<id>", methods=["GET"])
-def select_id(id):
-
-    try:
-        id = int(id)
-        time = Time()
-        return time.select_by_id(id), 200
-    except:
-        return "Necessário informar um tipo inteiro como parâmetro", 400
-    
-@app.route("/campeonato", methods=["GET"])
-def select_all():
-
-    time = Time()
-
-    return time.select_all(), 200
-
-
-@app.route("/campeonato/select_by_name/<nome>")
-def select_by_name(nome):
-
-    time = Time(nome=nome)
-
-    return time.select_by_name(), 200
-
-@app.route("/campeonato/select_oldest_team/")
-def select_oldest_team():
-    time = Time()
-
-    return time.select_top_premiacao(), 200
-
 
 
 
@@ -79,15 +42,23 @@ def add_campeonato():
     data = json.loads(request.data)
 
     if('nome' not in data.keys() or 'premiacao' not in data.keys()):
-        return "Error", 400
-    
-    campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
-    
-    campeonato.add_campeonato()
+        return "Nome ou premiação não foi informado", 400
 
-    return "teste", 200
-
+    if(data['nome'] != "" and data['premiacao'] != "" and data['nome'] != None and data['premiacao'] != None):
+        
+        campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
+        
+        return campeonato.add_campeonato(), 200
     
+    else:
+        return "Nome ou premiação está vazio", 400
+
+@app.route("/campeonato/<int:id>", methods=["DELETE"])
+def delete_campeoato(id):
+
+    campeonato = Campeonato()
+
+    return campeonato.delete_campeoato(id)
 
 
 if __name__ == "__main__":
