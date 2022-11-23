@@ -11,6 +11,8 @@ def select_id(id):
 
     campeonato = Campeonato()
 
+    
+
     return campeonato.select_by_id(id)
     
 @app.route("/campeonato", methods=["GET"])
