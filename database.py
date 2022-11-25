@@ -13,7 +13,7 @@ class Database():
     def execute_query(self, query):
         try:
             with self.database.connect() as con:
-                con.execute(query)
+                self.result['result'] = con.execute(query)
                 return self.result
         except OperationalError:
             self.result["error"] = {

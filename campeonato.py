@@ -64,11 +64,13 @@ class Campeonato():
 
     def delete_campeonato(self, id):
         try:
-            if(self.select_by_id(id) == 0):
+            selected_to_delete = self.select_by_id(id)
+
+            if(len(selected_to_delete) == 0):
                 return {"Message": "O id informado não foi encontrado"}
             
             result = self.database.execute_query(f'DELETE FROM campeonato WHERE campeonato_id={id}')
-            return result['result']
+            return selected_to_delete
         except:
             return {"Erro: " : result['error']['message']}, result['error']['status_code']
 
