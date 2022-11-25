@@ -3,6 +3,7 @@ from flask import request
 from team import Team
 from campeonato import Campeonato
 import json
+from json import JSONDecodeError
 
 app = Flask(__name__)
 
@@ -60,20 +61,22 @@ def delete_campeonato(id):
 
 @app.route("/campeonato/<int:id>", methods=["PUT"])
 def update_campeonato(id):
+    try:
+        data = json.loads(request.data)
 
-    data = json.loads(request.data)
+        if('nome' not in data.keys() or 'premiacao' not in data.keys()):
+            return {"Erro": "Nome ou premiação não foi informado"}, 400
 
-    if('nome' not in data.keys() or 'premiacao' not in data.keys()):
-        return "Nome ou premiação não foi informado", 400
-
-    if(data['nome'] != "" and data['premiacao'] != "" and data['nome'] != None and data['premiacao'] != None):
+        if(data['nome'] != "" and data['premiacao'] != "" and data['nome'] != None and data['premiacao'] != None):
+            
+            campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
+            
+            return campeonato.update_campeonato(id)
         
-        campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
-        
-        return campeonato.update_campeonato(id)
-    
-    else:
-        return "Nome ou premiação está vazio", 400
+        else:
+            return {"Erro": "Nome ou premiação está vazio"}, 400
+    except JSONDecodeError:
+        return {"Erro": "Não foi informado nenhum objeto na request"}, 400
 
 #Time
 

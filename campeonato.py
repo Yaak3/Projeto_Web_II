@@ -76,12 +76,14 @@ class Campeonato():
 
     def update_campeonato(self, id):
         try:
+            selected_to_update = self.select_by_id(id)
 
-            if(self.select_by_id(id) == 0):
+            if(len(selected_to_update) == 0):
                 return {"Message": "O id informado não foi encontrado"}
             
             result = self.database.execute_query(f'UPDATE campeonato SET "nome"={self.nome}, "premiacao"={self.premiacao}, "etapa"={self.etapa} WHERE campeonato_id={id}')
-            return result
+
+            return self.select_by_id(id)
 
         except:
             return {"Erro: " : result['error']['message']}, result['error']['status_code']
