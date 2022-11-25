@@ -2,10 +2,36 @@ from flask import Flask
 from flask import request
 from team import Team
 from campeonato import Campeonato
+from usuario import Usuario
 import json
 from json import JSONDecodeError
+from random import randint
 
 app = Flask(__name__)
+
+@app.route("/usuario/<int:id>", methods=["GET"])
+def select_usuario(id):
+
+    usuario = Usuario()
+
+    return usuario.select_usuario(id)
+
+@app.route("/usuario", methods=["GET"])
+def login_user():
+    auth = request.authorization
+    try:
+        auth = request.authorization
+        print(app.config.get('SECRET_KEY'))
+        return "teste"
+    except:
+        return {"erro": "login ou senha não informados no cabeçalho"}, 400
+
+
+
+
+
+
+
 
 @app.route("/campeonato/<int:id>", methods=["GET"])
 def select_id(id):
@@ -13,7 +39,8 @@ def select_id(id):
     campeonato = Campeonato()
 
     return campeonato.select_by_id(id)
-    
+
+
 @app.route("/campeonato", methods=["GET"])
 def select_all():
 
@@ -22,6 +49,10 @@ def select_all():
     return campeonato.select_all()
 
 
+
+
+
+'''
 @app.route("/campeonato/select_by_name/<string:nome_campeonato>", methods=["GET"])
 def select_by_name(nome_campeonato):
 
@@ -81,6 +112,6 @@ def update_campeonato(id):
 #Time
 
 
-
+'''
 if __name__ == "__main__":
     app.run(debug=True)

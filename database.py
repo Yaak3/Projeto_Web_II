@@ -4,7 +4,7 @@ from sqlalchemy.exc import OperationalError
 
 class Database():
     def __init__(self):
-        self.database = create_engine("mysql+pymysql://bruno:aluno@10.10.10.150/webII")
+        self.database = create_engine("mysql+pymysql://root:7725Bgds$@127.0.0.1/projeto_rest")
         self.result = {
             'result': None,
             'error': None

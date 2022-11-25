@@ -1,7 +1,4 @@
-import sqlalchemy as db
-import json
 from database import Database
-from sqlalchemy import create_engine
 
 class Campeonato():
     def __init__(self, nome = None, premiacao = None, etapa = None):
@@ -11,9 +8,8 @@ class Campeonato():
         self.etapa = etapa
     
     def select_by_id(self, id):
-        #TESTAR o result[0] pra ver se consegue acessar a tupla
         try:
-            result = self.database.execute_query(f'SELECT * FROM campeonato WHERE campeonato_id = {id};')
+            result = self.database.execute_query(f'SELECT * FROM campeonato WHERE id = {id};')
             result = list(result['result'])
 
             if(len(result) > 0):
@@ -53,7 +49,7 @@ class Campeonato():
                 return {}
         except:
             return {"Erro: " : result['error']['message']}, result['error']['status_code']
-
+'''
     def add_campeonato(self):
         try:
             result = self.database.execute_query(f'INSERT INTO campeonato (nome, premiacao, etapa) VALUES("{self.nome}", "{self.premiacao}", "{self.etapa}")')
@@ -87,3 +83,4 @@ class Campeonato():
 
         except:
             return {"Erro: " : result['error']['message']}, result['error']['status_code']
+'''
