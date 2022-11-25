@@ -4,7 +4,7 @@ from sqlalchemy.exc import OperationalError
 
 class Database():
     def __init__(self):
-        self.database = create_engine("mysql+pymysql://root:aluno@localhost/webII")
+        self.database = create_engine("mysql+pymysql://bruno:aluno@10.10.10.150/webII")
         self.result = {
             'result': None,
             'error': None
@@ -13,7 +13,7 @@ class Database():
     def execute_query(self, query):
         try:
             with self.database.connect() as con:
-                self.result['result'] = con.execute(query)
+                con.execute(query)
                 return self.result
         except OperationalError:
             self.result["error"] = {
@@ -21,4 +21,4 @@ class Database():
                 "status_code": 500
             }
 
-            return self.result
+            return self.result 

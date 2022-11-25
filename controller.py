@@ -11,8 +11,6 @@ def select_id(id):
 
     campeonato = Campeonato()
 
-    
-
     return campeonato.select_by_id(id)
     
 @app.route("/campeonato", methods=["GET"])
@@ -28,15 +26,13 @@ def select_by_name(nome_campeonato):
 
     campeonato = Campeonato(nome=nome_campeonato)
 
-    return campeonato.select_by_name(), 200
+    return campeonato.select_by_name()
 
 @app.route("/campeonato/select_top_premiacao")
 def select_top_premiacao():
     campeonato = Campeonato()
 
-    return campeonato.select_top_premiacao(), 200
-
-
+    return campeonato.select_top_premiacao()
 
 @app.route("/campeonato", methods=["POST"])
 def add_campeonato():
@@ -50,17 +46,37 @@ def add_campeonato():
         
         campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
         
-        return campeonato.add_campeonato(), 200
+        return campeonato.add_campeonato()
     
     else:
         return "Nome ou premiação está vazio", 400
 
 @app.route("/campeonato/<int:id>", methods=["DELETE"])
-def delete_campeoato(id):
+def delete_campeonato(id):
 
     campeonato = Campeonato()
 
-    return campeonato.delete_campeoato(id)
+    return campeonato.delete_campeonato(id)
+
+@app.route("/campeonato/<int:id>", methods=["PUT"])
+def update_campeonato(id):
+
+    data = json.loads(request.data)
+
+    if('nome' not in data.keys() or 'premiacao' not in data.keys()):
+        return "Nome ou premiação não foi informado", 400
+
+    if(data['nome'] != "" and data['premiacao'] != "" and data['nome'] != None and data['premiacao'] != None):
+        
+        campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
+        
+        return campeonato.update_campeonato(id)
+    
+    else:
+        return "Nome ou premiação está vazio", 400
+
+#Time
+
 
 
 if __name__ == "__main__":
