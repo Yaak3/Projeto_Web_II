@@ -3,29 +3,40 @@ from flask import request
 from team import Team
 from campeonato import Campeonato
 from usuario import Usuario
+import pendulum
+from datetime import datetime
+import jwt
 import json
 from json import JSONDecodeError
-from random import randint
+
 
 app = Flask(__name__)
 
-@app.route("/usuario/<int:id>", methods=["GET"])
-def select_usuario(id):
 
-    usuario = Usuario()
-
-    return usuario.select_usuario(id)
-
-@app.route("/usuario", methods=["GET"])
+@app.route("/login", methods=["GET"])
 def login_user():
     auth = request.authorization
-    try:
-        auth = request.authorization
-        print(app.config.get('SECRET_KEY'))
-        return "teste"
-    except:
-        return {"erro": "login ou senha não informados no cabeçalho"}, 400
 
+    if('username' in auth.keys() and 'password' in auth.keys()):
+        usuario = Usuario(login=auth['username'], password=auth['password'])
+
+        usuario = usuario.select_usuario_by_login()
+
+        if('erro' in usuario):
+            return usuario
+        else:
+            if(len(usuario) > 1):
+                
+                expire_date = pendulum.now()
+                expire_date = expire_date.add(minutes=5)
+
+                usuario["expire_date"] = datetime.timestamp(expire_date)
+
+                return jwt.encode(payload=usuario, key="projeto_rest")
+            
+            return "Usuário ou senha não encontrados"
+
+    return "Usuário ou senha não informados", 400
 
 
 

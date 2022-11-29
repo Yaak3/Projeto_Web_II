@@ -16,7 +16,7 @@ class Usuario():
             result = list(result['result'])
 
             if(len(result) > 0):
-                return {"id": result[0][0], "login": result[0][1], "permicao": result[0][2], "is_logado": result[0][3]}
+                return {"id": result[0][0], "login": result[0][1], "is_editor": result[0][2]}
             else:
                 return {}
 
@@ -25,12 +25,12 @@ class Usuario():
 
     def select_usuario_by_login(self):
         try:
-            result = self.database.execute_query(f'SELECT * FROM usuario WHERE login = {self.login};')
+            result = self.database.execute_query(f'SELECT * FROM usuario WHERE login LIKE "{self.login}" and password LIKE "{self.password}";')
 
             result = list(result['result'])
 
             if(len(result) > 0):
-                return {"id": result[0][0], "login": result[0][1], "permicao": result[0][2], "is_logado": result[0][3]}
+                return {"id": result[0][0], "login": result[0][1], "is_editor": result[0][2]}
             else:
                 return {}
 

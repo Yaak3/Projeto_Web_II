@@ -4,7 +4,7 @@ from sqlalchemy.exc import OperationalError
 
 class Database():
     def __init__(self):
-        self.database = create_engine("mysql+pymysql://root:7725Bgds$@127.0.0.1/projeto_rest")
+        self.database = create_engine("mysql+pymysql://projeto_rest@10.10.10.150/projeto_rest")
         self.result = {
             'result': None,
             'error': None
@@ -15,7 +15,7 @@ class Database():
             with self.database.connect() as con:
                 self.result['result'] = con.execute(query)
                 return self.result
-        except OperationalError:
+        except OperationalError as e:
             self.result["error"] = {
                 "message": "Erro ao conectar com o banco de dados",
                 "status_code": 500
