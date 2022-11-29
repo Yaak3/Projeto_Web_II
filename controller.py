@@ -15,14 +15,25 @@ app = Flask(__name__)
 
 @app.route("/login", methods=["GET"])
 def login_user():
-    auth = request.authorization
+    auth = dict(request.headers)
+
+    print(auth)
+
+    if('Authorization' not in auth.keys()):
+        return {"Erro": "Usuário ou senha não informados"} , 400
+    elif('Basic' not in auth['Authorization']):
+        return {"Erro": "Usuário ou senha não informados"} , 400
+    else:
+        auth = request.authorization
+
+    print(auth)
 
     if('username' in auth.keys() and 'password' in auth.keys()):
         usuario = Usuario(login=auth['username'], password=auth['password'])
 
         usuario = usuario.select_usuario_by_login()
 
-        if('erro' in usuario):
+        if(type(usuario) is tuple):
             return usuario
         else:
             if(len(usuario) > 1):
@@ -34,11 +45,16 @@ def login_user():
 
                 return jwt.encode(payload=usuario, key="projeto_rest")
             
-            return "Usuário ou senha não encontrados"
+            return {"Erro": "Usuário ou senha não encontrados"}, 401
 
-    return "Usuário ou senha não informados", 400
+    return {"Erro": "Usuário ou senha não informados"} , 400
 
+@app.route("/is_autenticado", methods=["GET"])
+def is_autenticado():
+    auth = dict(request.headers)
+    print(auth)
 
+    return "teste"
 
 
 
