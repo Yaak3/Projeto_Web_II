@@ -9,33 +9,17 @@ class Usuario():
         self.is_logado = token_auth
         self.password = password
 
-    def select_usuario_by_id(self):
-        try:
-            result = self.database.execute_query(f'SELECT * FROM usuario WHERE id = {self.id};')
-
-            result = list(result['result'])
-
-            if(len(result) > 0):
-                return {"id": result[0][0], "login": result[0][1], "is_editor": result[0][2]}
-            else:
-                return {}
-
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
-
     def select_usuario_by_login(self):
-        try:
-            result = self.database.execute_query(f'SELECT * FROM usuario WHERE login LIKE "{self.login}" and password LIKE "{self.password}";')
+        result = self.database.execute_query(f'SELECT * FROM usuario WHERE login LIKE "{self.login}" and password LIKE "{self.password}";')
 
+        if(result['error'] != None):
+            return {"Erro" : result['error']['message'], "status_code": result['error']['status_code']}
+        else:
             result = list(result['result'])
-
             if(len(result) > 0):
                 return {"id": result[0][0], "login": result[0][1], "is_editor": result[0][2]}
             else:
                 return {}
-
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
 
 
     def add_usuario(self):

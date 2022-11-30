@@ -6,6 +6,7 @@ from usuario import Usuario
 import pendulum
 from datetime import datetime
 import jwt
+from jwt import DecodeError
 import json
 from json import JSONDecodeError
 
@@ -28,8 +29,8 @@ def login_user():
 
     usuario = usuario.select_usuario_by_login()
 
-    if(type(usuario) is tuple):
-        return usuario
+    if("Erro" in usuario.keys()):
+        return usuario["Erro"], usuario["status_code"]
     else:
         if(len(usuario) > 1):
                 
@@ -43,14 +44,35 @@ def login_user():
             
     return {"Erro": "Usuário ou senha não encontrados"}, 401
 
-@app.route("/is_autenticado", methods=["GET"])
-def is_autenticado():
-    auth = dict(request.headers)
-    print(auth)
+def is_autenticado(headers):
+    auth = dict(headers)
+
+    if('Authorization' not in auth.keys()):
+        return {"Erro": "Token não informado"} , 400
+    elif('Bearer' not in auth['Authorization']):
+        return {"Erro": "Token não informado"} , 400
+    else:
+        auth = headers["Authorization"]
+
+    auth = auth.split()
+
+    try:
+        auth = jwt.decode(auth[1], algorithms=['HS256'], key="projeto_rest")
+    except DecodeError:
+        return {"Erro": "Token informado não é valido"}, 401
+    except:
+        return {"Erro": "Token informado não é valido"}, 401
+
+
+    
 
     return "teste"
 
+@app.route("/usuario", methods=["POST"])
+def add_user():
+    print(is_autenticado(request.headers))
 
+    return "teste"
 
 
 
