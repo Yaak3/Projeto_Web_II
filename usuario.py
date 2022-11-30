@@ -1,23 +1,22 @@
 from database import Database
 
 class Usuario():
-    def __init__(self, id=None, login=None, permicao=None, token_auth=None, password=None):
+    def __init__(self, id=None, username=None, is_editor=None, password=None):
         self.database = Database()
         self.id = id
-        self.login = login
-        self.permicao = permicao
-        self.is_logado = token_auth
+        self.username = username
+        self.is_editor = is_editor
         self.password = password
 
     def select_usuario_by_login(self):
-        result = self.database.execute_query(f'SELECT * FROM usuario WHERE login LIKE "{self.login}" and password LIKE "{self.password}";')
+        result = self.database.execute_query(f'SELECT * FROM usuario WHERE username LIKE "{self.username}" and password LIKE "{self.password}";')
 
         if(result['error'] != None):
-            return {"Erro" : result['error']['message'], "status_code": result['error']['status_code']}
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
         else:
             result = list(result['result'])
             if(len(result) > 0):
-                return {"id": result[0][0], "login": result[0][1], "is_editor": result[0][2]}
+                return {"username": result[0][0], "is_editor": result[0][1]}
             else:
                 return {}
 

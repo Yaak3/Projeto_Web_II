@@ -25,12 +25,12 @@ def login_user():
     else:
         auth = request.authorization
 
-    usuario = Usuario(login=auth['username'], password=auth['password'])
+    usuario = Usuario(username=auth['username'], password=auth['password'])
 
     usuario = usuario.select_usuario_by_login()
 
-    if("Erro" in usuario.keys()):
-        return usuario["Erro"], usuario["status_code"]
+    if("error" in usuario.keys()):
+        return usuario["error"], usuario["status_code"]
     else:
         if(len(usuario) > 1):
                 
@@ -44,13 +44,13 @@ def login_user():
             
     return {"Erro": "Usuário ou senha não encontrados"}, 401
 
-def is_autenticado(headers):
+def verifica_identidade(headers):
     auth = dict(headers)
 
     if('Authorization' not in auth.keys()):
-        return {"Erro": "Token não informado"} , 400
+        return {"error": {"Erro": "Token não informado"}, "status_code": 400}
     elif('Bearer' not in auth['Authorization']):
-        return {"Erro": "Token não informado"} , 400
+        return {"error": {"Erro": "Token não informado"}, "status_code": 400}
     else:
         auth = headers["Authorization"]
 
@@ -59,18 +59,23 @@ def is_autenticado(headers):
     try:
         auth = jwt.decode(auth[1], algorithms=['HS256'], key="projeto_rest")
     except DecodeError:
-        return {"Erro": "Token informado não é valido"}, 401
+        return {"error": {"Erro": "Token informado não é valido"}, "status_code": 401}
     except:
-        return {"Erro": "Token informado não é valido"}, 401
+        return {"error": {"Erro": "Token informado não é valido"}, "status_code": 401}
 
-
-    
-
-    return "teste"
+    return {"result": {"is_editor": auth['is_editor']}}
 
 @app.route("/usuario", methods=["POST"])
 def add_user():
-    print(is_autenticado(request.headers))
+    identidade = verifica_identidade(request.headers)
+
+    if("error" in identidade.keys()):
+        return identidade["error"]
+
+    if(identidade["result"]["is_editor"] != 1):
+        return {"Erro": "Seu usuário não tem permissão para adicionar outros usuários"}
+    
+    
 
     return "teste"
 
