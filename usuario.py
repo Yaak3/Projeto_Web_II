@@ -22,6 +22,7 @@ class Usuario():
                 return {}
 
 
+'''
     def add_usuario(self):
         try:
             result = self.database.execute_query(f'INSERT INTO usuario login, permicao, token_auth, password VALUES({self.login}, {self.permicao}, {self.is_logado}, {self.password}')
@@ -42,3 +43,4 @@ class Usuario():
             return {"id": self.id, "login": self.login, "permicao": self.permicao}
         except:
             return {"Erro: " : result['error']['message']}, result['error']['status_code']
+'''
