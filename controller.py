@@ -17,8 +17,6 @@ app = Flask(__name__)
 def login_user():
     auth = dict(request.headers)
 
-    print(auth)
-
     if('Authorization' not in auth.keys()):
         return {"Erro": "Usuário ou senha não informados"} , 400
     elif('Basic' not in auth['Authorization']):
@@ -26,28 +24,24 @@ def login_user():
     else:
         auth = request.authorization
 
-    print(auth)
+    usuario = Usuario(login=auth['username'], password=auth['password'])
 
-    if('username' in auth.keys() and 'password' in auth.keys()):
-        usuario = Usuario(login=auth['username'], password=auth['password'])
+    usuario = usuario.select_usuario_by_login()
 
-        usuario = usuario.select_usuario_by_login()
-
-        if(type(usuario) is tuple):
-            return usuario
-        else:
-            if(len(usuario) > 1):
+    if(type(usuario) is tuple):
+        return usuario
+    else:
+        if(len(usuario) > 1):
                 
-                expire_date = pendulum.now()
-                expire_date = expire_date.add(minutes=5)
-
-                usuario["expire_date"] = datetime.timestamp(expire_date)
-
-                return jwt.encode(payload=usuario, key="projeto_rest")
+            expire_date = pendulum.now()
             
-            return {"Erro": "Usuário ou senha não encontrados"}, 401
+            expire_date = expire_date.add(minutes=5)
 
-    return {"Erro": "Usuário ou senha não informados"} , 400
+            usuario["expire_date"] = datetime.timestamp(expire_date)
+
+            return {'token': jwt.encode(payload=usuario, key="projeto_rest"), 'expira_em': usuario["expire_date"]}
+            
+    return {"Erro": "Usuário ou senha não encontrados"}, 401
 
 @app.route("/is_autenticado", methods=["GET"])
 def is_autenticado():
