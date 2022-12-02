@@ -29,3 +29,49 @@ class CampeonatoTime():
                 return [{"time_id": row[0], "campeonato_id": row[1], "numero_titulos": row[2]} for row in result]
             else:
                 return {}
+
+    def select_by_id(self):
+        result = self.database.execute_query(f'SELECT * FROM campeonato_time WHERE time_id={self.time_id} AND campeonato_id={self.campeonato_id};')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return {"time_id": result[0][0], "campeonato_id": result[0][1], "numero_titulos": result[0][2]}
+            else:
+                return {}
+
+    def select_mais_titulos(self):
+        result = self.database.execute_query(f'SELECT * FROM campeonato_time ORDER BY numero_titulos DESC;')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return {"time_id": result[0][0], "campeonato_id": result[0][1], "numero_titulos": result[0][2]}
+            else:
+                return {}     
+
+    def select_time_campeonato(self):
+        result = self.database.execute_query(f'SELECT * FROM campeonato_time WHERE time_id={self.time_id};')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return [{"time_id": row[0], "campeonato_id": row[1], "numero_titulos": row[2]} for row in result]
+            else:
+                return {}
+
+    def delete_campeonato_time(self):
+        usuario_para_deletar = self.select_by_id()
+
+        result = self.database.execute_query(f'DELETE FROM campeonato_time WHERE time_id="{self.time_id}" AND campeonato_id={self.campeonato_id}')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            return usuario_para_deletar

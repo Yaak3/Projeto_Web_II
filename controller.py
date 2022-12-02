@@ -505,18 +505,78 @@ def add_campeonato_time():
 
 
 @app.route("/campeonato_time", methods=["GET"])
-def get_all_campeonato_time():
+def get_campeonato_time():
+
+    args = request.args
+    
+    if(len(args) > 0):
+        args = args.to_dict()
+
+        if('time_id' in args.keys() and 'campeonato_id' in args.keys()):
+            campeonato_time = CampeonatoTime(time_id=args["time_id"], campeonato_id=args["campeonato_id"])
+            campeonato_time = campeonato_time.select_by_id()
+
+            if("error" in campeonato_time):
+                return campeonato_time["error"], campeonato_time["status_code"]
+            else:
+                return campeonato_time
+
+        elif('time_id' in args.keys()):
+            campeonato_time = CampeonatoTime(time_id=args["time_id"])
+            campeonato_time = campeonato_time.select_time_campeonato()
+        
+            if("error" in campeonato_time):
+                return campeonato_time["error"], campeonato_time["status_code"]
+            else:
+                return campeonato_time
+
+        else:
+            return {"Erro": "Dados faltando na request!"}, 400
+    
+
     campeonato_time = CampeonatoTime()
     campeonato_time = campeonato_time.select_all()
 
     if("error" in campeonato_time):
         return campeonato_time["error"], campeonato_time["status_code"]
     else:
-        return campeonato_time  
+        return campeonato_time
 
+@app.route("/campeonato_time/select_mais_titulos", methods=["GET"])
+def select_mais_titulos():
+    campeonato_time = CampeonatoTime()
+    campeonato_time = campeonato_time.select_mais_titulos()
 
+    if("error" in campeonato_time):
+        return campeonato_time["error"], campeonato_time["status_code"]
+    else:
+        return campeonato_time     
 
+@app.route("/campeonato_time", methods=["DELETE"])
+def delete_time_campeonato():
+    args = request.args
+    
+    if(len(args) == 2):
+        args = args.to_dict()
 
+        if('time_id' in args.keys() and 'campeonato_id' in args.keys()):
+            campeonato_time = CampeonatoTime(time_id=args["time_id"], campeonato_id=args["campeonato_id"])
+            campeonato_time_select = campeonato_time.select_by_id()
+
+            if(len(campeonato_time_select) > 0):
+                campeonato_time = campeonato_time.delete_campeonato_time()
+
+                if("error" in campeonato_time):
+                    return campeonato_time["error"], campeonato_time["status_code"]
+                else:
+                    return campeonato_time
+            else:
+                return {"Erro" : "Time ou campeonato não estão vinculados"}, 404
+        else:
+            return {"Erro": "Dados faltando na request!"}, 400
+        
+    else:
+        return {"Erro": "Dados faltando na request!"}, 400
 
 if __name__ == "__main__":
     app.run(debug=True)
