@@ -1,86 +1,70 @@
 from database import Database
 
 class Campeonato():
-    def __init__(self, nome = None, premiacao = None, etapa = None):
+    def __init__(self, id=None, nome = None, premiacao = None, etapa = None, owner_username = None):
         self.database = Database()
+        self.id = id
         self.nome = nome
         self.premiacao = premiacao
         self.etapa = etapa
+        self.owner_username = owner_username
     
-    def select_by_id(self, id):
-        try:
-            result = self.database.execute_query(f'SELECT * FROM campeonato WHERE id = {id};')
-            result = list(result['result'])
-
-            if(len(result) > 0):
-                return {"id": result[0][0],"nome": result[0][1], "premiacao": result[0][2], "etapa": result[0][3]}
-            else:
-                return {}
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
-
     def select_all(self):
-        try:
-            result = self.database.execute_query(f'SELECT * FROM campeonato;')
-            return [{"id": row[0],"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result['result']]
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
+        result = self.database.execute_query(f'SELECT * FROM campeonato;')
 
-    def select_by_name(self):
-        try:
-            result = self.database.execute_query(f'SELECT * FROM campeonato WHERE nome LIKE "{self.nome}";')
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
             result = list(result['result'])
-
             if(len(result) > 0):
-                return {"id": result[0][0],"nome": result[0][1], "premiacao": result[0][2], "etapa": result[0][3]}
+                return result
             else:
                 return {}
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
+
+    def select_by_id(self):
+        result = self.database.execute_query(f'SELECT * FROM campeonato WHERE id = {self.id};')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return {"nome": result[0][1], "premiacao": result[0][2], "epata": result[0][3]}
+            else:
+                return {}
+
+    def select_order_by_name(self):
+        result = self.database.execute_query(f'SELECT * FROM campeonato ORDER BY nome ASC;')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            print(result)
+            if(len(result) > 0):
+                return [{"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
+            else:
+                return {}
 
     def select_top_premiacao(self):
-        try:
-            result = self.database.execute_query(f'SELECT * FROM campeonato ORDER BY premiacao desc limit 1;')
-            result = list(result['result'])
+        result = self.database.execute_query(f'SELECT * FROM campeonato ORDER BY premiacao DESC;')
 
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
             if(len(result) > 0):
-                return {"id": result[0][0],"nome": result[0][1], "premiacao": result[0][2], "etapa": result[0][3]}
+                return {"nome": result[0][1], "premiacao": result[0][2], "epata": result[0][3]}
             else:
                 return {}
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
-'''
+
     def add_campeonato(self):
-        try:
-            result = self.database.execute_query(f'INSERT INTO campeonato (nome, premiacao, etapa) VALUES("{self.nome}", "{self.premiacao}", "{self.etapa}")')
-            return result['result']
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
+        result = self.database.execute_query(f'INSERT INTO campeonato (nome, premiacao, etapa, owner_username) VALUES ("{self.nome}", {self.premiacao}, "{self.etapa}", "{self.owner_username}")')
 
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            return {"nome": self.nome, "premiacao": self.premiacao, "etapa": self.etapa}
 
-    def delete_campeonato(self, id):
-        try:
-            selected_to_delete = self.select_by_id(id)
-
-            if(len(selected_to_delete) == 0):
-                return {"Message": "O id informado não foi encontrado"}
-            
-            result = self.database.execute_query(f'DELETE FROM campeonato WHERE campeonato_id={id}')
-            return selected_to_delete
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
-
-    def update_campeonato(self, id):
-        try:
-            selected_to_update = self.select_by_id(id)
-
-            if(len(selected_to_update) == 0):
-                return {"Message": "O id informado não foi encontrado"}
-            
-            result = self.database.execute_query(f'UPDATE campeonato SET "nome"={self.nome}, "premiacao"={self.premiacao}, "etapa"={self.etapa} WHERE campeonato_id={id}')
-
-            return self.select_by_id(id)
-
-        except:
-            return {"Erro: " : result['error']['message']}, result['error']['status_code']
-'''
+    def delete_campeonato(self):
+        pass
