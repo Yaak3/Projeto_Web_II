@@ -2,6 +2,7 @@ import sqlalchemy as db
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DataError
 
 class Database():
     def __init__(self):
@@ -17,6 +18,7 @@ class Database():
                 self.result['result'] = con.execute(query)
                 return self.result
         except OperationalError as e:
+            print(e)
             self.result["error"] = {
                 "message": "Erro ao conectar com o banco de dados",
                 "status_code": 500
@@ -25,7 +27,14 @@ class Database():
             return self.result 
         except IntegrityError as e:
             self.result["error"] = {
-                "message": "Dado não pode ser inserido pois é inválido",
+                "message": "Dado não pode ser inserido pois já existe",
+                "status_code": 400
+            }
+            
+            return self.result 
+        except DataError:
+            self.result["error"] = {
+                "message": "Tipo do dado incorreto",
                 "status_code": 400
             }
             

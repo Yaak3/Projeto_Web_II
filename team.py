@@ -1,74 +1,66 @@
-import sqlalchemy as db
-import json
-from sqlalchemy import create_engine
+from database import Database
 
 class Team():
-    def __init__(self, nome = None, ano = None):
-        self.database = create_engine("mysql+pymysql://root:aluno@localhost/webII")
+    def __init__(self, id = None, nome = None, ano_fundacao = None, presidente = None, owner_username = None):
+        self.database = Database()
+        self.id = id
         self.nome = nome
-        self.ano = ano
-    
-    def select_by_id(self, id):
-
-        with self.database.connect() as con:
-
-            result = con.execute(f'SELECT * FROM time WHERE campeonato_id = {id}')
-
-            result = {"id": result[0][0],"nome": result[0][1], "ano": result[0][2]}
-        
-        return result
+        self.ano_fundacao = ano_fundacao
+        self.presidente = presidente
+        self.owner_username = owner_username
 
     def select_all(self):
+        result = self.database.execute_query(f'SELECT * FROM time;')
 
-        with self.database.connect() as con:
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return [{"nome": row[1], "ano_fundacao": row[2], "presidente": row[3]} for row in result]
+            else:
+                return {}
 
-            result = con.execute(f'SELECT * FROM time')
+    def select_by_id(self):
+        result = self.database.execute_query(f'SELECT * FROM time WHERE id = {self.id};')
 
-            result = [{"nome": row[1], "ano": row[2]} for row in result]
-
-        return result
-
-    def select_by_name(self):
-
-        with self.database.connect() as con:
-
-            result = con.execute(f'SELECT * FROM time WHERE "nome" LIKE %{self.nome}%')
-
-            result = [{"id": row[0],"nome": row[1], "ano": row[2]} for row in result]
-
-        return result
-
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return {"nome": result[0][1], "ano_fundacao": result[0][2], "presidente": result[0][3]}
+            else:
+                return {}
+    
     def select_oldest_team(self):
+        result = self.database.execute_query(f'SELECT * FROM time ORDER BY ano_fundacao ASC;')
 
-        with self.database.connect() as con:
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return {"nome": result[0][1], "ano_fundacao": result[0][2], "presidente": result[0][3]}
+            else:
+                return {}
 
-            result = con.execute(f'SELECT * FROM campeonato ORDER BY "ano" ASC')
+    def select_desc_presidente(self):
+        result = self.database.execute_query(f'SELECT * FROM time ORDER BY presidente DESC;')
 
-            result = {"id": result[0][0],"nome": result[0][1], "ano": result[0][2]}
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return [{"nome": row[1], "ano_fundacao": row[2], "presidente": row[3]} for row in result]
+            else:
+                return {}
 
-        return result
+    def add_time(self):
+        result = self.database.execute_query(f'INSERT INTO time (nome, ano_fundacao, presidente, owner_username) VALUES ("{self.nome}", {self.ano_fundacao}, "{self.presidente}", "{self.owner_username}")')
 
-
-    def add_team(self):
-        
-        with self.database.connect() as con:
-
-            result = con.execute(f'INSERT INTO campeonato (nome, ano) VALUES("{self.nome}", "{self.ano}")')
-
-        return result
-
-    def delete_campeoato(self, id):
-
-        with self.database.connect() as con:
-
-            result = con.execute(f'DELETE FROM campeonato WHERE time_id={id}')
-
-        return result
-
-    def update_campeonato(self, id):
-
-        with self.database.connect() as con:
-
-            result = con.execute(f'UPDATE campeonato SET "nome"={self.nome}, "ano"={self.ano} WHERE time_id={id}')
-
-        return result
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            return {"nome": self.nome, "ano_fundacao": self.ano_fundacao, "presidente": self.presidente}

@@ -108,7 +108,7 @@ def delete_usuario(user):
     usuario = usuario.select_usuario_by_login()
 
     if(len(usuario) > 1):
-
+        usuario = Usuario(username=user)
         usuario = usuario.delete_usuario()
 
         if("error" in usuario):
@@ -231,86 +231,95 @@ def add_campeonato():
     else:
         return {"Erro": "Dados inválidos na request"}, 400
 
-
-'''
-@app.route("/campeonato/<int:id>", methods=["GET"])
-def select_id(id):
-
-    campeonato = Campeonato()
-
-    return campeonato.select_by_id(id)
-
-
-@app.route("/campeonato", methods=["GET"])
-def select_all():
-
-    campeonato = Campeonato()
-
-    return campeonato.select_all()
-
-
-
-
-
-@app.route("/campeonato/select_by_name/<string:nome_campeonato>", methods=["GET"])
-def select_by_name(nome_campeonato):
-
-    campeonato = Campeonato(nome=nome_campeonato)
-
-    return campeonato.select_by_name()
-
-@app.route("/campeonato/select_top_premiacao")
-def select_top_premiacao():
-    campeonato = Campeonato()
-
-    return campeonato.select_top_premiacao()
-
-@app.route("/campeonato", methods=["POST"])
-def add_campeonato():
-
-    data = json.loads(request.data)
-
-    if('nome' not in data.keys() or 'premiacao' not in data.keys()):
-        return "Nome ou premiação não foi informado", 400
-
-    if(data['nome'] != "" and data['premiacao'] != "" and data['nome'] != None and data['premiacao'] != None):
-        
-        campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
-        
-        return campeonato.add_campeonato()
-    
-    else:
-        return "Nome ou premiação está vazio", 400
-
 @app.route("/campeonato/<int:id>", methods=["DELETE"])
 def delete_campeonato(id):
+    campeonato = Campeonato(id=id)
+    campeonato = campeonato.select_by_id()
 
-    campeonato = Campeonato()
+    if(len(campeonato) > 1):
+        campeonato = Campeonato(id=id)
+        campeonato = campeonato.delete_campeonato()
 
-    return campeonato.delete_campeonato(id)
-
-@app.route("/campeonato/<int:id>", methods=["PUT"])
-def update_campeonato(id):
-    try:
-        data = json.loads(request.data)
-
-        if('nome' not in data.keys() or 'premiacao' not in data.keys()):
-            return {"Erro": "Nome ou premiação não foi informado"}, 400
-
-        if(data['nome'] != "" and data['premiacao'] != "" and data['nome'] != None and data['premiacao'] != None):
-            
-            campeonato = Campeonato(nome=data['nome'], premiacao=data['premiacao'], etapa=data.get('etapa', None))
-            
-            return campeonato.update_campeonato(id)
-        
+        if("error" in campeonato):
+            return campeonato["error"], campeonato["status_code"]
         else:
-            return {"Erro": "Nome ou premiação está vazio"}, 400
-    except JSONDecodeError:
-        return {"Erro": "Não foi informado nenhum objeto na request"}, 400
+            return campeonato
+    else:
+        return {"Erro" : "Campeonato não encontrado"}, 404
 
 #Time
+@app.route("/time", methods=["GET"])
+def select_all_times():
+    time = Team()
+    time = time.select_all()
+
+    if("error" in time):
+        return time["error"], time["status_code"]
+    else:
+        return time
+
+@app.route("/time/<int:id>", methods=["GET"])
+def select_time(id):
+    time = Team(id = id)
+    time =  time.select_by_id()
+
+    if("error" in time):
+        return time["error"], time["status_code"]
+    else:
+        return time
+
+@app.route("/time/select_oldest_team", methods=["GET"])
+def select_oldest():
+    time = Team()
+    time =  time.select_oldest_team()
+
+    if("error" in time):
+        return time["error"], time["status_code"]
+    else:
+        return time
+
+@app.route("/time/select_president_by_desc", methods=["GET"])
+def select_desc_presidente():
+    time = Team()
+    time =  time.select_desc_presidente()
+
+    if("error" in time):
+        return time["error"], time["status_code"]
+    else:
+        return time
+
+@app.route("/time/", methods=["POST"])
+def add_time():
+    identidade = verifica_identidade(request.headers)
+
+    if("error" in identidade.keys()):
+        return identidade["error"], identidade['status_code']
+
+    if(identidade["result"]["is_editor"] != 1):
+        return {"Erro": "Seu usuário não tem permissão para adicionar campeonatos"}, 401
+    
+    try:
+        data = json.loads(request.data)
+    except:
+        return {"Erro": "Request inválida"}, 400
+
+    if('nome' not in data.keys() or 'ano_fundacao' not in data.keys() or 'presidente' not in data.keys()):
+        return {"Erro": "Dados faltando na request!"}, 400
+
+    if(data['nome'] != "" and  data['nome'] != None and data['ano_fundacao'] != "" and data['ano_fundacao'] != None and data['presidente'] != "" and data["presidente"] != None):
+        
+        time = Team(nome=data['nome'], ano_fundacao=data['ano_fundacao'], presidente=data['presidente'], owner_username=identidade['result']["username"])
+        time = time.add_time()
+
+        if("error" in time):
+            return time["error"], time["status_code"]
+        else:
+            return time
+
+    else:
+        return {"Erro": "Dados inválidos na request"}, 400
 
 
-'''
+
 if __name__ == "__main__":
     app.run(debug=True)

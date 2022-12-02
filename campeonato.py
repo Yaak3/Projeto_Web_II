@@ -17,7 +17,7 @@ class Campeonato():
         else:
             result = list(result['result'])
             if(len(result) > 0):
-                return result
+                return [{"nome": row[1], "premiacao": row[2], "etapa": row[3]} for row in result]
             else:
                 return {}
 
@@ -67,4 +67,11 @@ class Campeonato():
             return {"nome": self.nome, "premiacao": self.premiacao, "etapa": self.etapa}
 
     def delete_campeonato(self):
-        pass
+        campeonato_para_deletar = self.select_by_id()
+
+        result = self.database.execute_query(f'DELETE FROM campeonato WHERE id="{self.id}"')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            return campeonato_para_deletar

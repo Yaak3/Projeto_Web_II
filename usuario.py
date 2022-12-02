@@ -45,12 +45,14 @@ class Usuario():
 
         usuario_para_deletar = self.select_usuario_by_login()
 
-        result = self.database.execute_query(f'DELETE FROM usuario WHERE username="{self.username}"')
+        result = self.database.execute_query(f'DELETE FROM usuario WHERE username="{self.id}"')
 
         if(result['error'] != None):
             return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
         else:
             return usuario_para_deletar
+
+
 #Ver depois
     def update_usuario(self):
 
