@@ -336,6 +336,48 @@ def delete_time(id):
     else:
         return {"Erro" : "Time não encontrado"}, 404
 
+
+@app.route("/time/<int:id>", methods=["PUT"])
+def update_time(id):
+    identidade = verifica_identidade(request.headers)
+
+    if("error" in identidade.keys()):
+        return identidade["error"], identidade['status_code']
+
+    if(identidade["result"]["is_editor"] != 1):
+        return {"Erro": "Seu usuário não tem permissão para adicionar campeonatos"}, 401
+    
+    try:
+        data = json.loads(request.data)
+    except:
+        return {"Erro": "Request inválida"}, 400
+
+    time = Team(id=id)
+    select_time = time.select_by_id()
+
+    if("error" in select_time):
+        return select_time["error"], time["status_code"]
+
+    if(len(select_time) == 0):
+        return {"Erro" : "Time não encontrado"}, 404
+        
+    if('nome' not in data.keys() or 'ano_fundacao' not in data.keys() or 'presidente' not in data.keys()):
+        return {"Erro": "Dados faltando na request!"}, 400
+
+    if(data['nome'] != "" and  data['nome'] != None and data['ano_fundacao'] != "" and data['ano_fundacao'] != None and data['presidente'] != "" and data["presidente"] != None):
+        
+        time = Team(id= id,nome=data['nome'], ano_fundacao=data['ano_fundacao'], presidente=data['presidente'], owner_username=identidade['result']["username"])
+        time = time.update_time()
+
+        if("error" in time):
+            return time["error"], time["status_code"]
+        else:
+            return time
+
+    else:
+        return {"Erro": "Dados inválidos na request"}, 400
+
+
 #jogadores
 @app.route("/jogadores", methods=["POST"])
 def add_jogadores():

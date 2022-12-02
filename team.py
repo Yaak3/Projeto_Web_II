@@ -74,3 +74,11 @@ class Team():
             return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
         else:
             return time_para_deletar
+
+    def update_time(self):
+        result = self.database.execute_query(f'UPDATE time SET nome="{self.nome}", ano_fundacao={self.ano_fundacao}, presidente="{self.presidente}", owner_username="{self.owner_username}" WHERE id={self.id} ')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            return {"nome": self.nome, "ano_fundacao": self.ano_fundacao, "presidente": self.presidente}

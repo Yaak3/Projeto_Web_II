@@ -6,7 +6,7 @@ from sqlalchemy.exc import DataError
 
 class Database():
     def __init__(self):
-        self.database = create_engine("mysql+pymysql://projeto_rest@10.10.10.150/projeto_rest")
+        self.database = create_engine("mysql+pymysql://root:7725Bgds$@127.0.0.1/projeto_rest")
         self.result = {
             'result': None,
             'error': None
