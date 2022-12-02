@@ -18,3 +18,14 @@ class CampeonatoTime():
         else:
             return {"time_id": self.time_id, "campeonato_id": self.campeonato_id, "numero_titulos": self.numero_titulos}
     
+    def select_all(self):
+        result = self.database.execute_query(f'SELECT * FROM campeonato_time;')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            result = list(result['result'])
+            if(len(result) > 0):
+                return [{"time_id": row[0], "campeonato_id": row[1], "numero_titulos": row[2]} for row in result]
+            else:
+                return {}

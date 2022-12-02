@@ -461,5 +461,20 @@ def add_campeonato_time():
     else:
         return {"Erro": "Dados inválidos na request"}, 400   
 
+
+@app.route("/campeonato_time", methods=["GET"])
+def get_all_campeonato_time():
+    campeonato_time = CampeonatoTime()
+    campeonato_time = campeonato_time.select_all()
+
+    if("error" in campeonato_time):
+        return campeonato_time["error"], campeonato_time["status_code"]
+    else:
+        return campeonato_time  
+
+
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
