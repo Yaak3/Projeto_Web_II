@@ -65,6 +65,9 @@ def verifica_identidade(headers):
     except:
         return {"error": {"Erro": "Token informado não é valido"}, "status_code": 401}
 
+    if(pendulum.from_timestamp(auth['expire_date']) < pendulum.now()):
+        return {"error": {"Erro": "O token informado está expirado"}, "status_code": 401}
+
     usuario = Usuario(username=auth["username"])
     usuario = usuario.select_usuario_by_login()
 
