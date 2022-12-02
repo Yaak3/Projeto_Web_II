@@ -3,6 +3,7 @@ from flask import request
 from team import Team
 from jogadores import Jogadores
 from campeonato import Campeonato
+from campeonato_time import CampeonatoTime
 from usuario import Usuario
 import pendulum
 from datetime import datetime
@@ -421,6 +422,44 @@ def delete_jogadores(id):
             return jogador
     else:
         return {"Erro" : "Jogador não encontrado"}, 404
+
+#campeonato_time
+@app.route("/campeonato_time", methods=["POST"])
+def add_campeonato_time():
+    identidade = verifica_identidade(request.headers)
+
+    if("error" in identidade.keys()):
+        return identidade["error"], identidade['status_code']
+
+    if(identidade["result"]["is_editor"] != 1):
+        return {"Erro": "Seu usuário não tem permissão para adicionar campeonatos"}, 401
+    
+    try:
+        data = json.loads(request.data)
+    except:
+        return {"Erro": "Request inválida"}, 400
+
+    if('time_id' not in data.keys() or 'campeonato_id' not in data.keys() or 'numero_titulos' not in data.keys()):
+        return {"Erro": "Dados faltando na request!"}, 400
+
+    if(data['time_id'] != "" and  data['time_id'] != None and data['campeonato_id'] != "" and data['campeonato_id'] != None and data['numero_titulos'] != "" and data["numero_titulos"] != None):
+        
+        time_id = Team(id=data['time_id']).select_by_id()
+        campeonato_id = Campeonato(id=data['campeonato_id']).select_by_id()
+
+        if(len(time_id) > 1 and len(campeonato_id) > 1):
+            campeonato_time = CampeonatoTime(time_id=data['time_id'], campeonato_id=data['campeonato_id'],  numero_titulos=data['numero_titulos'], owner_username=identidade['result']["username"])
+            campeonato_time = campeonato_time.add_campeonato_time()
+        else:
+            return {"Erro": "Time ou campeonato não encontrados"}, 404
+
+        if("error" in campeonato_time):
+            return campeonato_time["error"], campeonato_time["status_code"]
+        else:
+            return campeonato_time
+
+    else:
+        return {"Erro": "Dados inválidos na request"}, 400   
 
 if __name__ == "__main__":
     app.run(debug=True)
