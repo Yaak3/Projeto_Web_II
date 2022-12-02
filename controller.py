@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import request
 from team import Team
+from jogadores import Jogadores
 from campeonato import Campeonato
 from usuario import Usuario
 import pendulum
@@ -319,7 +320,107 @@ def add_time():
     else:
         return {"Erro": "Dados inválidos na request"}, 400
 
+@app.route("/time/<int:id>", methods=["DELETE"])
+def delete_time(id):
+    time = Team(id=id)
+    select_time = time.select_by_id()
 
+    if(len(select_time) > 1):
+        time = time.delete_time()
+
+        if("error" in time):
+            return time["error"], time["status_code"]
+        else:
+            return time
+    else:
+        return {"Erro" : "Time não encontrado"}, 404
+
+#jogadores
+@app.route("/jogadores", methods=["POST"])
+def add_jogadores():
+    identidade = verifica_identidade(request.headers)
+
+    if("error" in identidade.keys()):
+        return identidade["error"], identidade['status_code']
+
+    if(identidade["result"]["is_editor"] != 1):
+        return {"Erro": "Seu usuário não tem permissão para adicionar campeonatos"}, 401
+    
+    try:
+        data = json.loads(request.data)
+    except:
+        return {"Erro": "Request inválida"}, 400
+
+    if('nome' not in data.keys() or 'salario' not in data.keys() or 'valor_mercado' not in data.keys() and 'time_id' not in data.keys()):
+        return {"Erro": "Dados faltando na request!"}, 400
+
+    if(data['nome'] != "" and  data['nome'] != None and data['salario'] != "" and data['salario'] != None and data['valor_mercado'] != "" and data["valor_mercado"] != None and data['time_id'] and data['time_id'] != None):
+        
+        jogador = Jogadores(nome=data['nome'], salario=data['salario'],  valor_mercado=data['valor_mercado'], time_id=data['time_id'], owner_username=identidade['result']["username"])
+        jogador = jogador.add_jogador()
+
+        if("error" in jogador):
+            return jogador["error"], jogador["status_code"]
+        else:
+            return jogador
+
+    else:
+        return {"Erro": "Dados inválidos na request"}, 400
+
+@app.route("/jogadores", methods=["GET"])
+def get_all_jogadores():
+    jogador = Jogadores()
+    jogador = jogador.select_all()
+
+    if("error" in jogador):
+        return jogador["error"], jogador["status_code"]
+    else:
+        return jogador   
+
+@app.route("/jogadores/<int:id>", methods=["GET"])
+def select_jogadores(id):
+    jogador = Jogadores(id = id)
+    jogador =  jogador.select_by_id()
+
+    if("error" in jogador):
+        return jogador["error"], jogador["status_code"]
+    else:
+        return jogador
+
+@app.route("/jogadores/select_maior_salario", methods=["GET"])
+def select_maior_salario():
+    jogador = Jogadores()
+    jogador = jogador.select_maior_salario()
+
+    if("error" in jogador):
+        return jogador["error"], jogador["status_code"]
+    else:
+        return jogador   
+
+@app.route("/jogadores/select_menor_valor_mercado", methods=["GET"])
+def select_menor_valor_mercado():
+    jogador = Jogadores()
+    jogador = jogador.select_menor_valor_mercado()
+
+    if("error" in jogador):
+        return jogador["error"], jogador["status_code"]
+    else:
+        return jogador   
+
+@app.route("/jogadores/<int:id>", methods=["DELETE"])
+def delete_jogadores(id):
+    jogador = Jogadores(id=id)
+    select_jogador = jogador.select_by_id()
+
+    if(len(select_jogador) > 1):
+        jogador = jogador.delete_jogador()
+
+        if("error" in jogador):
+            return jogador["error"], jogador["status_code"]
+        else:
+            return jogador
+    else:
+        return {"Erro" : "Jogador não encontrado"}, 404
 
 if __name__ == "__main__":
     app.run(debug=True)

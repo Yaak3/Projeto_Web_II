@@ -64,3 +64,13 @@ class Team():
             return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
         else:
             return {"nome": self.nome, "ano_fundacao": self.ano_fundacao, "presidente": self.presidente}
+
+    def delete_time(self):
+        time_para_deletar = self.select_by_id()
+
+        result = self.database.execute_query(f'DELETE FROM time WHERE id={self.id}')
+
+        if(result['error'] != None):
+            return {"error": {"Erro" : result['error']['message']}, "status_code": result['error']['status_code']}
+        else:
+            return time_para_deletar
